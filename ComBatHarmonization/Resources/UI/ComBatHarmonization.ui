@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>422</width>
-    <height>441</height>
+    <width>546</width>
+    <height>588</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -77,17 +77,69 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="0">
+      <item row="6" column="0">
        <layout class="QHBoxLayout" name="horizontalLayout_9"/>
       </item>
       <item row="7" column="0">
+       <widget class="QLineEdit" name="covariatesNames">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="inputMask">
+         <string/>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="placeholderText">
+         <string>Type covariate</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="1">
+       <widget class="QPushButton" name="pushButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Add Covariate</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="0">
+       <widget class="QLineEdit" name="lineEdit">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="placeholderText">
+         <string>Enter values</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="1">
+       <widget class="QTextEdit" name="textEdit">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>100</height>
+         </size>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout_7"/>
+      </item>
+      <item row="12" column="0">
        <widget class="QLabel" name="label_3">
         <property name="text">
          <string>Features File :</string>
         </property>
        </widget>
       </item>
-      <item row="7" column="1">
+      <item row="12" column="1">
        <widget class="qMRMLNodeComboBox" name="dataFrameSelector1">
         <property name="nodeTypes">
          <stringlist notr="true">
@@ -114,14 +166,14 @@
         </property>
        </widget>
       </item>
-      <item row="8" column="0">
+      <item row="13" column="0">
        <widget class="QLabel" name="label">
         <property name="text">
          <string>Covariates File :</string>
         </property>
        </widget>
       </item>
-      <item row="8" column="1">
+      <item row="13" column="1">
        <widget class="qMRMLNodeComboBox" name="dataFrameSelector2">
         <property name="nodeTypes">
          <stringlist notr="true">
@@ -148,27 +200,45 @@
         </property>
        </widget>
       </item>
-      <item row="9" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout_7"/>
-      </item>
-      <item row="10" column="0">
+      <item row="14" column="0">
        <layout class="QHBoxLayout" name="horizontalLayout_3"/>
       </item>
-      <item row="6" column="0">
-       <widget class="QLineEdit" name="covariatesNames">
-        <property name="inputMask">
-         <string/>
+      <item row="10" column="0">
+       <widget class="QPushButton" name="addFileGroupButton">
+        <property name="enabled">
+         <bool>false</bool>
         </property>
         <property name="text">
-         <string/>
-        </property>
-        <property name="placeholderText">
-         <string>Type covariate</string>
+         <string>Add Files</string>
         </property>
        </widget>
       </item>
-      <item row="6" column="1">
-       <widget class="QLineEdit" name="lineEdit"/>
+      <item row="10" column="1">
+       <widget class="QPushButton" name="saveDataFrameButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Save Dataframes</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="Line" name="line">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="11" column="0">
+       <widget class="Line" name="line_2">
+        <property name="frameShadow">
+         <enum>QFrame::Sunken</enum>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -178,72 +248,25 @@
      <property name="text">
       <string>Outputs</string>
      </property>
-     <layout class="QFormLayout" name="formLayout_4">
+     <layout class="QFormLayout" name="formLayout">
       <item row="0" column="0">
-       <widget class="QLabel" name="label_6">
-        <property name="text">
-         <string>Thresholded volume:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="qMRMLNodeComboBox" name="outputSelector">
-        <property name="toolTip">
-         <string>Pick the output to the algorithm.</string>
-        </property>
-        <property name="nodeTypes">
-         <stringlist notr="true">
-          <string>vtkMRMLScalarVolumeNode</string>
-         </stringlist>
-        </property>
-        <property name="showChildNodeTypes">
-         <bool>false</bool>
-        </property>
-        <property name="noneEnabled">
-         <bool>true</bool>
-        </property>
-        <property name="addEnabled">
-         <bool>true</bool>
-        </property>
-        <property name="removeEnabled">
-         <bool>true</bool>
-        </property>
-        <property name="SlicerParameterName" stdset="0">
-         <string>thresholdedVolume</string>
+       <widget class="Line" name="line_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="label_5">
         <property name="text">
-         <string>Inverted volume:</string>
+         <string>TextLabel</string>
         </property>
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="qMRMLNodeComboBox" name="invertedOutputSelector">
-        <property name="toolTip">
-         <string>Result with inverted threshold will be written into this volume</string>
-        </property>
-        <property name="nodeTypes">
-         <stringlist notr="true">
-          <string>vtkMRMLScalarVolumeNode</string>
-         </stringlist>
-        </property>
-        <property name="showChildNodeTypes">
-         <bool>false</bool>
-        </property>
-        <property name="noneEnabled">
-         <bool>true</bool>
-        </property>
-        <property name="addEnabled">
-         <bool>true</bool>
-        </property>
-        <property name="removeEnabled">
-         <bool>true</bool>
-        </property>
-        <property name="SlicerParameterName" stdset="0">
-         <string>invertedVolume</string>
+       <widget class="QPushButton" name="pushButton_2">
+        <property name="text">
+         <string>PushButton</string>
         </property>
        </widget>
       </item>
@@ -330,38 +353,5 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections>
-  <connection>
-   <sender>ComBatHarmonization</sender>
-   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>outputSelector</receiver>
-   <slot>setMRMLScene(vtkMRMLScene*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>82</x>
-     <y>135</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>220</x>
-     <y>161</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ComBatHarmonization</sender>
-   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>invertedOutputSelector</receiver>
-   <slot>setMRMLScene(vtkMRMLScene*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>161</x>
-     <y>8</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>173</x>
-     <y>176</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>
