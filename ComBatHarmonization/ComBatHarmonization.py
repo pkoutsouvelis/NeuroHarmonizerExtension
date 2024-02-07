@@ -38,13 +38,12 @@ class ComBatHarmonization(ScriptedLoadableModule):
         # TODO: update with short description of the module and a link to online module documentation
         # _() function marks text as translatable to other languages
         self.parent.helpText = _("""
-This is an example of scripted loadable module bundled in an extension.
+This is module can be used to run ComBat Harmonization algorithms, bundled in the NeuroHarmonization extension.
 See more information in <a href="https://github.com/organization/projectname#ComBatHarmonization">module documentation</a>.
 """)
         # TODO: replace with organization, grant and thanks
         self.parent.acknowledgementText = _("""
-This file was originally developed by Jean-Christophe Fillion-Robin, Kitware Inc., Andras Lasso, PerkLab,
-and Steve Pieper, Isomics, Inc. and was partially funded by NIH grant 3P41RR013218-12S1.
+This file was originally created by Petros Koutsouvelis, Maastricht University.
 """)
 
         # Additional initialization step after application startup is complete
@@ -200,7 +199,7 @@ class ComBatHarmonizationWidget(ScriptedLoadableModuleWidget, VTKObservationMixi
     
     def onNewPathEntered(self, new): 
         if os.path.exists(new):
-            self._parameterNode.featuresDataFrame = slicer.util.loadTable(new)
+            slicer.util.loadTable(new)
             self.addedPath = new
     
     def onSplitFileToggled(self, data): 
@@ -231,6 +230,9 @@ class ComBatHarmonizationWidget(ScriptedLoadableModuleWidget, VTKObservationMixi
         if self.ui.covariatesNames.displayText != '' and len(self.ui.covariatesValues.displayText.split(', ')) > 1:
             if self.ui.covariatesValues.displayText.split(', ')[1] != '':
                 self.ui.addCovariateButton.enabled = True
+            else:
+                self.ui.addCovariateButton.enabled = False
+        self.ui.addCovariateButton.enabled = False
 
     def onAddCovariateButtonClicked(self):
         self.logic.addCovariate(self.ui.covariatesNames.displayText, self.ui.covariatesValues.displayText.split(', '))
@@ -355,6 +357,7 @@ class ComBatHarmonizationWidget(ScriptedLoadableModuleWidget, VTKObservationMixi
 
     def onSaveResultsButtonClicked(self):
         print('yes')
+        slicer.util.selectModule(slicer.modules.vectortoscalarvolume)
     
     def cleanup(self) -> None:
         """Called when the application closes and the module widget is destroyed."""
@@ -454,10 +457,15 @@ class ComBatHarmonizationLogic(ScriptedLoadableModuleLogic):
         directory = os.path.dirname(fileName)
         title_with_extension = os.path.basename(fileName)  # Removes the directory path, leaving filename
         title, _ = os.path.splitext(title_with_extension)  # Removes the file extension
+        if not os.path.isdir(f'{directory}/Split Files'):
+            os.mkdir(f'{directory}/Split Files')
 
         df = pd.read_csv(fileName)
         for i in range(len(df.iloc[0,:])):
-            df.iloc[:, i].to_csv(f'{directory}/{title}_{i+1}.csv', index=False)
+            if i + 1 < 10:
+                df.iloc[:, i].to_csv(f'{directory}/Split Files/{title}_0{i+1}.csv', index=False)
+            else: 
+                df.iloc[:, i].to_csv(f'{directory}/Split Files/{title}_{i+1}.csv', index=False)
     
     def resetCovars(self): 
         self.covariateNames = []
@@ -835,7 +843,7 @@ class ComBatHarmonizationTest(ScriptedLoadableModuleTest):
         """Do whatever is needed to reset the state - typically a scene clear will be enough."""
         slicer.mrmlScene.Clear()
 
-    def runTest(self):
+    def runTest(self):  
         """Run as few or as many tests as needed here."""
         self.setUp()
         self.test_ComBatHarmonization1()

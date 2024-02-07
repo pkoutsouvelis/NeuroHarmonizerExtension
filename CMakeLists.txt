@@ -24,6 +24,8 @@ include(${Slicer_USE_FILE})
 #-----------------------------------------------------------------------------
 # Extension modules
 add_subdirectory(ComBatHarmonization)
+add_subdirectory(QuantifyHarmonization)
+add_subdirectory(DataframesForHarmonization)
 ## NEXT_MODULE
 
 #-----------------------------------------------------------------------------

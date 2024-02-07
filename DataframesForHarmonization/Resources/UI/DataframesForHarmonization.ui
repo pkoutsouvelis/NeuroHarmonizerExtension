@@ -1,0 +1,586 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DataframesForHarmonization</class>
+ <widget class="qMRMLWidget" name="DataframesForHarmonization">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>427</width>
+    <height>629</height>
+   </rect>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="ctkCollapsibleButton" name="inputsCollapsibleButton">
+     <property name="text">
+      <string>Inputs</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout_2">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Add File :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="ctkPathLineEdit" name="addFilePathLineEdit">
+        <property name="toolTip">
+         <string>Input filepath of .csv file to be loaded in Slicer.</string>
+        </property>
+        <property name="statusTip">
+         <string>Input filepath of .csv file to be loaded in Slicer.</string>
+        </property>
+        <property name="nameFilters">
+         <stringlist>
+          <string>*.csv</string>
+         </stringlist>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <layout class="QHBoxLayout" name="horizontalLayoutAddSplit">
+        <item>
+         <widget class="QPushButton" name="addFileButton">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="toolTip">
+           <string>Click to add the file.</string>
+          </property>
+          <property name="statusTip">
+           <string>Click to add the file.</string>
+          </property>
+          <property name="text">
+           <string>Add</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="splitFileButton">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="toolTip">
+           <string>Click to split all columns of the file into separate files, under the Split Files directory.</string>
+          </property>
+          <property name="statusTip">
+           <string>Click to split all columns of the file into separate files, under the Split Files directory.</string>
+          </property>
+          <property name="text">
+           <string>Split</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="2" column="0">
+       <widget class="Line" name="line">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Create New DataFrame :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QCheckBox" name="createNewDataFrameCheckBox">
+        <property name="toolTip">
+         <string>Click to create new covariates and data dataframes.</string>
+        </property>
+        <property name="statusTip">
+         <string>Click to create new covariates and data dataframes.</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0">
+       <widget class="QLabel" name="configureCovariatesLabel">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Configure Covariates : </string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="1">
+       <layout class="QVBoxLayout" name="verticalLayoutCovariates">
+        <item>
+         <widget class="QLineEdit" name="covariateNameLineEdit">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="toolTip">
+           <string>Enter covariate name; e.g., &quot;batch&quot;.</string>
+          </property>
+          <property name="statusTip">
+           <string>Enter covariate name; e.g., &quot;batch&quot;.</string>
+          </property>
+          <property name="placeholderText">
+           <string>Enter name</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="covariateValuesLineEdit">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="toolTip">
+           <string>Enter values for the given covariate; e.g., scanner a, scanner b.</string>
+          </property>
+          <property name="statusTip">
+           <string>Enter values for the given covariate; e.g., scanner a, scanner b.</string>
+          </property>
+          <property name="placeholderText">
+           <string>Enter values</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayoutAddRemoveSave">
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QPushButton" name="addCovariateButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Click to add provided name and values into the covariates list.</string>
+            </property>
+            <property name="statusTip">
+             <string>Click to add provided name and values into the covariates list.</string>
+            </property>
+            <property name="text">
+             <string>Add</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="removeCovariateButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Click to remove last covariate added from the covariates list</string>
+            </property>
+            <property name="statusTip">
+             <string>Click to remove last covariate added from the covariates list</string>
+            </property>
+            <property name="text">
+             <string>Remove</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="saveCovariatesButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Click to save all added covariates and proceed.</string>
+            </property>
+            <property name="statusTip">
+             <string>Click to save all added covariates and proceed.</string>
+            </property>
+            <property name="text">
+             <string>Save</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item row="8" column="1">
+       <widget class="QTextEdit" name="textEdit">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="Line" name="line_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="Line" name="line_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QLabel" name="inputsTypeLabel">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Inputs Type :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <widget class="QComboBox" name="inputsTypeComboBox">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>Select the type of input data; e.g., if input files for the DataFrame are .csv or NiFti. </string>
+        </property>
+        <property name="statusTip">
+         <string>Select the type of input data; e.g., if input files for the DataFrame are .csv or NiFti. </string>
+        </property>
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <item>
+         <property name="text">
+          <string>Features (*.csv)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Structural MRI (*.nii.gz)</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayoutFiles">
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="assignFilesLabel">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Assign Files :</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="covariatesSelector">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Choose combination of covariate values to add files for.</string>
+       </property>
+       <property name="statusTip">
+        <string>Choose combination of covariate values to add files for.</string>
+       </property>
+       <property name="placeholderText">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="addFileGroupButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Click to add group of files for the selected combination of covariate values.</string>
+       </property>
+       <property name="statusTip">
+        <string>Click to add group of files for the selected combination of covariate values.</string>
+       </property>
+       <property name="text">
+        <string>Add</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="removeFileGroupButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Click to remove previously added group of files.</string>
+       </property>
+       <property name="statusTip">
+        <string>Click to remove previously added group of files.</string>
+       </property>
+       <property name="text">
+        <string>Remove</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="ctkCollapsibleButton" name="outputsCollapsibleButton">
+     <property name="text">
+      <string>Outputs</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout_4">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>Custom Names :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QCheckBox" name="customNamesCheckBox">
+        <property name="toolTip">
+         <string>Click if you would like to enter custom names for the created DataFrames.</string>
+        </property>
+        <property name="statusTip">
+         <string>Click if you would like to enter custom names for the created DataFrames.</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="covariatesDataFrameLabel">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Covariates DataFrame :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="covariatesDfNameLineEdit">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>Enter name for the covariates DataFrame.</string>
+        </property>
+        <property name="statusTip">
+         <string>Enter name for the covariates DataFrame.</string>
+        </property>
+        <property name="placeholderText">
+         <string>Enter name</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="featuresDataFrameLabel">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Features DataFrame :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="featuresDfNameLineEdit">
+        <property name="toolTip">
+         <string>Enter name for the features DataFrame.</string>
+        </property>
+        <property name="statusTip">
+         <string>Enter name for the features DataFrame.</string>
+        </property>
+        <property name="placeholderText">
+         <string>Enter name</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="Line" name="line_5">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Save DataFrames :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QCheckBox" name="saveDataFramesCheckBox">
+        <property name="toolTip">
+         <string>Click if you desire to locally store the created dataframes.</string>
+        </property>
+        <property name="statusTip">
+         <string>Click if you desire to locally store the created dataframes.</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="Line" name="line_4">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QLabel" name="savePathLabel">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Save Path :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QLineEdit" name="directoryPathLineEdit">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="toolTip">
+           <string>Enter manually or by using the &quot;Browse&quot; button the desired directory to save the files.</string>
+          </property>
+          <property name="statusTip">
+           <string>Enter manually or by using the &quot;Browse&quot; button the desired directory to save the files.</string>
+          </property>
+          <property name="placeholderText">
+           <string>Enter directory path</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="browseFoldersButton">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="toolTip">
+           <string>Click to browse and select the desired directory.</string>
+          </property>
+          <property name="statusTip">
+           <string>Click to browse and select the desired directory.</string>
+          </property>
+          <property name="text">
+           <string>Browse</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="ctkCollapsibleButton" name="advancedCollapsibleButton">
+     <property name="text">
+      <string>Advanced</string>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+     <property name="collapsed">
+      <bool>true</bool>
+     </property>
+     <layout class="QFormLayout" name="formLayout_3">
+      <item row="0" column="0">
+       <widget class="QLabel" name="advancedLabel">
+        <property name="text">
+         <string>No advanced settings added yet.</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="applyButton">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="toolTip">
+      <string>Click to apply all inputs and create the DataFrames. If selected, DataFrames will be automatically saved on path input.</string>
+     </property>
+     <property name="statusTip">
+      <string>Click to apply all inputs and create the DataFrames. If selected, DataFrames will be automatically saved on path input.</string>
+     </property>
+     <property name="text">
+      <string>Create DataFrames</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2"/>
+   </item>
+   <item>
+    <widget class="Line" name="line_6">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCommandLinkButton" name="goToComBatLinkButton">
+     <property name="toolTip">
+      <string>Click to go to the ComBatHarmonization module</string>
+     </property>
+     <property name="statusTip">
+      <string>Click to go to the ComBatHarmonization module</string>
+     </property>
+     <property name="text">
+      <string>ComBat Harmonization Module</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ctkCollapsibleButton</class>
+   <extends>QWidget</extends>
+   <header>ctkCollapsibleButton.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ctkPathLineEdit</class>
+   <extends>QWidget</extends>
+   <header>ctkPathLineEdit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>qMRMLWidget</class>
+   <extends>QWidget</extends>
+   <header>qMRMLWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
