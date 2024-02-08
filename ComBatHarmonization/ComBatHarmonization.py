@@ -346,7 +346,7 @@ class ComBatHarmonizationWidget(ScriptedLoadableModuleWidget, VTKObservationMixi
         if self._parameterNode:
             self._parameterNode.disconnectGui(self._parameterNodeGuiTag)
             self._parameterNodeGuiTag = None
-            self.removeObserver(self._parameterNode, vtk.vtkCommand.ModifiedEvent, self._checkCanApply)
+            self.removeObserver(self._parameterNode, vtk.vtkCommand.ModifiedEvent, self.logic.checkCreatedDataFrames)
 
     def onSceneStartClose(self, caller, event) -> None:
         """Called just before the scene is closed."""
@@ -390,7 +390,7 @@ class ComBatHarmonizationWidget(ScriptedLoadableModuleWidget, VTKObservationMixi
 
         if self._parameterNode:
             self._parameterNode.disconnectGui(self._parameterNodeGuiTag)
-            self.removeObserver(self._parameterNode, vtk.vtkCommand.ModifiedEvent, self._checkCanApply)
+            self.removeObserver(self._parameterNode, vtk.vtkCommand.ModifiedEvent, self.logic.checkCreatedDataFrames)
         self._parameterNode = inputParameterNode
         if self._parameterNode:
             # Note: in the .ui file, a Qt dynamic property called "SlicerParameterName" is set on each
@@ -773,7 +773,7 @@ class ComBatHarmonizationLogic(ScriptedLoadableModuleLogic):
                                           categorical_cols=categorical_cols, continuous_cols=continuous_cols, 
                                           eb=eb, parametric=parametric, mean_only=mean_only, ref_batch=ref_batch)
         stopTime = time.time()
-        
+
         if len(data_combat) == 0:
             return_str = f'ComBat harmonization failed. See log for error messages.'
         else:
