@@ -141,8 +141,14 @@ class ComBatHarmonizationWidget(ScriptedLoadableModuleWidget, VTKObservationMixi
         self.logic = None
         self._parameterNode = None
         self._parameterNodeGuiTag = None
-        self.harmonizationSelector = 'Cortical thickness measurements'
+        self.batchColumn = None
         self.referenceBatch = None
+        self.categorical_cols = None
+        self.continuous_cols = None
+        self.remaining_cols = None
+        self.eb = True
+        self.parametric = True
+        self.mean_only = False
 
     def setup(self) -> None:
         """Called when the user opens the module the first time and the widget is initialized."""
@@ -168,196 +174,162 @@ class ComBatHarmonizationWidget(ScriptedLoadableModuleWidget, VTKObservationMixi
         self.addObserver(slicer.mrmlScene, slicer.mrmlScene.EndCloseEvent, self.onSceneEndClose)
 
          # Connections
-        self.ui.comBatSelector.currentTextChanged.connect(self.onHarmonizationSelectorChanged)
-        self.ui.addDataFramePathLineEdit.currentPathChanged.connect(self.onNewPathEntered)
-        self.ui.splitFileCheckBox.toggled.connect(self.onSplitFileToggled)
-        self.ui.createNewDataFrameButton.toggled.connect(self.onCustomDataFrameButtonToggled)
-        self.ui.covariatesNames.textChanged.connect(self.onCovariatesInputTextsChanged)
-        self.ui.covariatesValues.textChanged.connect(self.onCovariatesInputTextsChanged)
-        self.ui.addCovariateButton.clicked.connect(self.onAddCovariateButtonClicked)
-        self.ui.removeCovariateButton.clicked.connect(self.onRemoveCovariateButtonClicked)
-        self.ui.saveCovariatesButton.clicked.connect(self.onSaveCovariatesButtonClicked)
-        self.ui.covariatesSelector.currentTextChanged.connect(self.onCovariatesSelectorChanged)
-        self.ui.addFileGroupButton.clicked.connect(self.onAddFileGroupButtonClicked)
-        self.ui.removeFileGroupButton.clicked.connect(self.onRemoveFileGroupButtonClicked)
-        self.ui.saveDataFrameButton.clicked.connect(self.onSaveDataFrameButtonClicked)
-        self.ui.dataFrameSelector1.currentNodeChanged.connect(self.onFeaturesFileChanged)
-        self.ui.dataFrameSelector2.currentNodeChanged.connect(self.onCovariatesFileChanged)
-        self.ui.referenceBatchComboBox.currentTextChanged.connect(self.onReferenceBatchChanged)
-        self.ui.runComBatButton.clicked.connect(self.onRunComBatButtonClicked)
-        self.ui.showResultsButton.clicked.connect(self.onShowResultsButtonClicked)
-        self.ui.saveResultsButton.clicked.connect(self.onSaveResultsButtonClicked)
+        self.ui.addDataFramePathLineEdit.currentPathChanged.connect(self.onNewPathEntered) # Add path of existing csv
+        self.ui.addDataFrameButton.clicked.connect(self.onAddDataFrameButtonClicked) # Add csv as a vtkMRMLTableNode
+        self.ui.createNewDataFrameButton.toggled.connect(self.onCreateNewDataFrameButtonToggled) # Allow going to the dataframe creation module
+        self.ui.goToDfModuleLinkButton.clicked.connect(self.onGoToDfModuleLinkButtonClicked) # Go to the DataFrame dataframe module
+        self.ui.dataFrameSelector1.currentNodeChanged.connect(self.onFeaturesFileChanged) # Load vtkMRMLTableNode for features and perform error checking
+        self.ui.dataFrameSelector2.currentNodeChanged.connect(self.onCovariatesFileChanged) # Load vtkMRMLTableNode for covariates and perform error checking
+        self.ui.batchColumnComboBox.currentTextChanged.connect(self.onBatchColumnChanged) # Update batch column and initialize reference batch combo box
+        self.ui.referenceBatchComboBox.currentTextChanged.connect(self.onReferenceBatchChanged) # Update reference batch combobox based on new covariates file added
+        self.ui.customNamesCheckBox.toggled.connect(self.onCustomNamesCheckBoxToggled) # Enable input of custom DataFrames names
+        self.ui.saveDataFrameCheckBox.toggled.connect(self.onSaveDataFramesCheckBoxToggled) # Enable saving of DataFrames in a local path 
+        self.ui.browseFoldersButton.clicked.connect(self.onBrowseFoldersButtonClicked) # Open file dialog to choose directory and get the path
+        self.ui.assignColumnsCheckBox.toggled.connect(self.onAssignColumnsCheckBoxToggled) # Allow editing categorical and continuous columns
+        self.ui.categoricalColumnsLineEdit.textChanged.connect(self.onCategoricalColumnsLineEditChanged) # Update categorical columns
+        self.ui.continuousColumnsLineEdit.textChanged.connect(self.onContinuousColumnsLineEditChanged) # Update continuous columns
+        self.ui.applyButton.clicked.connect(self.onRunComBatButtonClicked) # Run ComBat and automatically save to vtkMRMLTableNode and locally if applicable
 
         # Make sure parameter node is initialized (needed for module reload)
         self.initializeParameterNode()
-        self.setupReferenceBatchSelector()
+        self.handleFirstInputs()
     #
     # Slots and additional class functions
     #
-    def onHarmonizationSelectorChanged(self, new):
-        self.harmonizationSelector = new
-    
     def onNewPathEntered(self, new): 
-        if os.path.exists(new):
-            slicer.util.loadTable(new)
-            self.addedPath = new
-    
-    def onSplitFileToggled(self, data): 
-        if data and os.path.exists(self.addedPath):
-            self.logic.splitFile(self.addedPath)
-
-    def onCustomDataFrameButtonToggled(self, data): 
-        if data: 
-            self.ui.covariatesNames.enabled = True
-            self.ui.covariatesValues.enabled = True
-            self.onCovariatesInputTextsChanged()
+        if os.path.exists(new) and new[-4:] == '.csv':
+            self.addedPath = new # Process path only when it exists and is a csv file
+            self.ui.addDataFrameButton.enabled = True
         else: 
-            self.ui.covariatesNames.setText('')
-            self.ui.covariatesValues.setText('')
-            self.ui.textEdit.clear()
-            self.ui.covariatesNames.enabled = False
-            self.ui.covariatesValues.enabled = False
-            self.ui.addCovariateButton.enabled = False
-            self.ui.removeCovariateButton.enabled = False
-            self.ui.saveCovariatesButton.enabled = False
-            self.ui.addFileGroupLabel.enabled = False
-            self.ui.covariatesSelector.enabled = False
-            self.ui.addFileGroupButton.enabled = False
-            self.ui.removeFileGroupButton.enabled = False
-            self.ui.saveDataFrameButton.enabled = False
-
-    def onCovariatesInputTextsChanged(self):
-        if self.ui.covariatesNames.displayText != '' and len(self.ui.covariatesValues.displayText.split(', ')) > 1:
-            if self.ui.covariatesValues.displayText.split(', ')[1] != '':
-                self.ui.addCovariateButton.enabled = True
-            else:
-                self.ui.addCovariateButton.enabled = False
-        self.ui.addCovariateButton.enabled = False
-
-    def onAddCovariateButtonClicked(self):
-        self.logic.addCovariate(self.ui.covariatesNames.displayText, self.ui.covariatesValues.displayText.split(', '))
-        self.covariatesToTextEdit()
-        self.ui.covariatesNames.setText('')
-        self.ui.covariatesValues.setText('')
-        self.ui.covariatesSelector.clear()
-        self.ui.addCovariateButton.enabled = False
-        self.ui.removeCovariateButton.enabled = True
-        self.ui.saveCovariatesButton.enabled = True
-        self.ui.addFileGroupLabel.enabled = False
-        self.ui.covariatesSelector.enabled = False
-        self.ui.addFileGroupButton.enabled = False
-        self.ui.removeFileGroupButton.enabled = False
-        self.ui.saveDataFrameButton.enabled = False
-
-    def onRemoveCovariateButtonClicked(self):
-        self.logic.removeCovariate()
-        self.covariatesToTextEdit()
-        self.ui.covariatesNames.setText('')
-        self.ui.covariatesValues.setText('')
-        self.ui.covariatesSelector.clear()
-        if self.logic.checkCovariatesNum() == 0: 
-            self.ui.addCovariateButton.enabled = False
-            self.ui.removeCovariateButton.enabled = False
-            self.ui.saveCovariatesButton.enabled = False
-            self.ui.addFileGroupLabel.enabled = False
-        self.ui.covariatesSelector.enabled = False
-        self.ui.addFileGroupButton.enabled = False
-        self.ui.removeFileGroupButton.enabled = False
-        self.ui.saveDataFrameButton.enabled = False
-
-    def covariatesToTextEdit(self): 
-        string = []
-        for i, j in zip(self.logic.getCovariateNames(), self.logic.getCovariateValues()):
-            string.append(f'{i} : {j}\n')
-        string = "".join(string)
-        self.ui.textEdit.setText(string)
+            self.ui.addDataFrameButton.enabled = False
     
-    def onSaveCovariatesButtonClicked(self): 
-        import itertools
-        self.ui.covariatesSelector.clear()
-        if self.logic.checkCovariatesNum() == 1:
-            for value in self.logic.getCovariateValues()[0]:
-                self.ui.covariatesSelector.addItem(value)
-        else:
-            combinations = list(itertools.product(*self.logic.getCovariateValues()))
-            for combination in combinations: 
-                self.ui.covariatesSelector.addItem(str(combination))
-        self.ui.addFileGroupLabel.enabled = True
-        self.ui.covariatesSelector.enabled = True
-        self.ui.textEdit.setText('Add files for each combination of covariates :\n')
+    def onAddDataFrameButtonClicked(self):
+        slicer.util.loadTable(self.addedPath)
 
-    def onCovariatesSelectorChanged(self): 
-        self.ui.addFileGroupButton.enabled = True
-
-    def onAddFileGroupButtonClicked(self):
-        if self.harmonizationSelector == 'Cortical thickness measurements':
-            filter = "Csv files (*.csv)"
-        if self.harmonizationSelector == 'Structural MRI data (not recommended)':
-            filter = "NiFti files (*.nii.gz)"
-        file_names = qt.QFileDialog.getOpenFileNames(self.uiWidget, "Select File", "", filter)
-        if file_names:  # if a file is selected
-            self.logic.addFilesWithCovariates(file_names, self.ui.covariatesSelector.currentText)
-            self.filesToTextEdit()
-        self.ui.removeFileGroupButton.enabled = True
-        self.ui.saveDataFrameButton.enabled = self.logic.checkCreatedDataFrames()
-
-    def onRemoveFileGroupButtonClicked(self):
-        self.logic.removeFilesWithCovariates()
-        self.filesToTextEdit()
-        self.ui.saveDataFrameButton.enabled = self.logic.checkCreatedDataFrames()
+    def onCreateNewDataFrameButtonToggled(self, data): 
+        # Enable related widget only when checkbox clicked
+        if data: 
+            self.ui.goToDfModuleLinkButton.enabled = True
+        else: 
+            self.ui.goToDfModuleLinkButton.enabled = False
     
-    def filesToTextEdit(self):
-        string = []
-        for i, j in zip(self.logic.getFileNames(), self.logic.getCovariatesList()):
-            string.append(f'{i} : {j}\n')
-        string = "".join(string)
-        self.ui.textEdit.setText(string)
-
-    def onSaveDataFrameButtonClicked(self):
-        summary_str = self.logic.saveCovariatesDataFrame()
-        if self.harmonizationSelector == 'Cortical thickness measurements':
-            self.logic.saveCorticalThicknessDataFrame()
-        if self.harmonizationSelector == 'Structural MRI data (not recommended)':
-            self.logic.saveStructuralMRIDataFrame()
-        
-        self.ui.textEdit.setText(summary_str)
+    def onGoToDfModuleLinkButtonClicked(self):
+        slicer.util.selectModule(slicer.modules.dataframesforharmonization)
 
     def onFeaturesFileChanged(self, new):
-        self._parameterNode.featuresDataFrame = new
+        self.ui.applyButton.enabled = self.logic.newFilesDf(new) # Error checking
+        self._parameterNode.featuresDataFrame = new # Update input parameter
 
     def onCovariatesFileChanged(self, new):
-        self._parameterNode.covariatesDataFrame = new #TO DO: apply error checking for imported files
-        self.setupReferenceBatchSelector()
-
-    def setupReferenceBatchSelector(self):
-        self.ui.referenceBatchComboBox.clear()
-        self.ui.referenceBatchComboBox.addItem('None')
+        self.ui.applyButton.enabled = self.logic.newCovariatesDf(new) # Error checking
+        self._parameterNode.covariatesDataFrame = new # Update input parameter
+        self.setupBatchColumnSelector() # Update batch column combo box
+    
+    def setupBatchColumnSelector(self):
+        self.ui.batchColumnComboBox.clear() # Clear every time new covariates file is entered
         covar_df = slicer.util.dataframeFromTable(self._parameterNode.covariatesDataFrame)
-        unique_sites = covar_df.iloc[:, 0].unique()
-        for site in unique_sites:
+        names = covar_df.columns
+        for name in names: # Enter covariate (columns) names
+            self.ui.batchColumnComboBox.addItem(name)
+        self.ui.batchColumnLabel.enabled = True # Enable widgets
+        self.ui.batchColumnComboBox.enabled = True
+        self.setupReferenceBatchSelector(self.ui.batchColumnComboBox.currentIndex) # Initialize reference batch combobox with current index
+        self.setupCategoricalAndContinuousColumnsLineEdit(self.ui.batchColumnComboBox.currentText) # Initialize categorical and continuous LineEdits with current index
+
+    def onBatchColumnChanged(self):
+        self.batchColumn = self.ui.batchColumnComboBox.currentText # Set current combobox value
+        self.setupReferenceBatchSelector(self.ui.batchColumnComboBox.currentIndex) # Update reference batch combobox with current index
+        self.setupCategoricalAndContinuousColumnsLineEdit(self.ui.batchColumnComboBox.currentText) # Update categorical and continuous LineEdits with current index
+
+    def setupReferenceBatchSelector(self, currentIndex):
+        self.ui.referenceBatchComboBox.clear() # Clear and enter default every time new covariates file is entered
+        self.ui.referenceBatchComboBox.addItem('None (default)')
+        self.referenceBatch = self.ui.referenceBatchComboBox.currentText # Set current combobox value
+        covar_df = slicer.util.dataframeFromTable(self._parameterNode.covariatesDataFrame)
+        unique_sites = covar_df.iloc[:, currentIndex].unique() # Find unique elements in batch column
+        for site in unique_sites: # Add elements to combobox
             self.ui.referenceBatchComboBox.addItem(site)
-        self.ui.referenceBatchLabel.enabled = True
+        self.ui.referenceBatchLabel.enabled = True # Enable widgets
         self.ui.referenceBatchComboBox.enabled = True
 
     def onReferenceBatchChanged(self, new):
         self.referenceBatch = new
 
-    def onRunComBatButtonClicked(self):
-        self.ui.statusLineEdit.setText('ComBat harmonization started.')
-        fileNumber = self.logic.getNumberFromEnd(str(self._parameterNode.covariatesDataFrame.GetName()))
-        tableNode, output = self.logic.process(self._parameterNode.covariatesDataFrame, self._parameterNode.featuresDataFrame, self.referenceBatch, fileNumber)
-        self._parameterNode.harmonizedDataFrame = tableNode
-        self.ui.statusLineEdit.setText(output)
-        self.ui.showResultsButton.enabled = True
-        self.ui.saveResultsButton.enabled = True
+    def onAssignColumnsCheckBoxToggled(self, data):
+        if data: # Enable related widgets
+            self.ui.categoricalColumnsLabel.enabled = True 
+            self.ui.categoricalColumnsLineEdit.enabled = True
+            self.ui.continuousColumnsLabel.enabled = True
+            self.ui.continuousColumnsLineEdit.enabled = True
+        else: # Disable widgets
+            self.ui.categoricalColumnsLabel.enabled = False 
+            self.ui.categoricalColumnsLineEdit.enabled = False
+            self.ui.continuousColumnsLabel.enabled = False
+            self.ui.continuousColumnsLineEdit.enabled = False
 
-    def onShowResultsButtonClicked(self):
-        names = [self._parameterNode.featuresDataFrame.GetName(), self._parameterNode.harmonizedDataFrame.GetName()]
-        self.logic.plotDataFrames([self._parameterNode.featuresDataFrame, self._parameterNode.harmonizedDataFrame], names)
+    def setupCategoricalAndContinuousColumnsLineEdit(self, batch):
+        covar_df = slicer.util.dataframeFromTable(self._parameterNode.covariatesDataFrame)
+        names = covar_df.columns
+        string = []
+        self.remaining_cols = []
+        if len(names)  > 1:
+            for name in names: # Enter covariate (columns) names except batch
+                if name != batch:
+                    self.remaining_cols.append(name)
+                    if name == names[-1]:
+                        string.append(f'{name}') # Don't add comma to last covariate
+                    else:
+                        string.append(f'{name}, ')
+            string = "".join(string)
+            self.ui.categoricalColumnsLineEdit.setText(string) # Set categorical columns
+        else: 
+            self.ui.categoricalColumnsLineEdit.setText('None')
+        self.ui.continuousColumnsLineEdit.setText('None') # Set default continuous columns
+    
+    def onCategoricalColumnsLineEditChanged(self):
+        self.categorical_cols = []
+        for col in self.ui.categoricalColumnsLineEdit.displayText.split(', '): 
+            self.categorical_cols.append(col)
+        self.ui.applyButton.enabled = self.logic.checkCategoricalAndContinuousCols(self.categorical_cols, self.continuous_cols, self.remaining_cols)
+    
+    def onContinuousColumnsLineEditChanged(self):
+        self.continuous_cols = []
+        for col in self.ui.continuousColumnsLineEdit.displayText.split(', '): 
+            self.continuous_cols.append(col)
+        self.ui.applyButton.enabled = self.logic.checkCategoricalAndContinuousCols(self.categorical_cols, self.continuous_cols, self.remaining_cols)
+    
 
-    def onSaveResultsButtonClicked(self):
-        print('yes')
-        slicer.util.selectModule(slicer.modules.vectortoscalarvolume)
+    def onCustomNamesCheckBoxToggled(self, data):
+        # Reset all values when check box is toggled
+        self.ui.harmonizedDfNameLineEdit.setText('')
+        if data: 
+            # Enable all related widgets
+            self.ui.harmonizedDataFrameLabel.enabled = True
+            self.ui.harmonizedDfNameLineEdit.enabled = True
+        else: 
+            # Disable widgets
+            self.ui.harmonizedDataFrameLabel.enabled = False
+            self.ui.harmonizedDfNameLineEdit.enabled = False
+    
+    def onSaveDataFramesCheckBoxToggled(self, data):
+        # Reset all values when check box is toggled
+        #self.ui.directoryPathLineEdit.setText('') # Don't reset because the user may want to switch often
+        if data: 
+            # Enable all related widgets
+            self.ui.savePathLabel.enabled = True
+            self.ui.directoryPathLineEdit.enabled = True
+            self.ui.browseFoldersButton.enabled = True
+        else: 
+            # Disable widgets
+            self.ui.savePathLabel.enabled = False
+            self.ui.directoryPathLineEdit.enabled = False
+            self.ui.browseFoldersButton.enabled = False
+    
+    def onBrowseFoldersButtonClicked(self):
+        # Opens a dialog to select a single file.
+        save_file_path = qt.QFileDialog.getExistingDirectory(self.uiWidget, "Select Directory", "")
+        if save_file_path: 
+            self.ui.directoryPathLineEdit.setText(save_file_path)
     
     def cleanup(self) -> None:
         """Called when the application closes and the module widget is destroyed."""
@@ -425,11 +397,46 @@ class ComBatHarmonizationWidget(ScriptedLoadableModuleWidget, VTKObservationMixi
             # ui element that needs connection.
             self._parameterNodeGuiTag = self._parameterNode.connectGui(self.ui)
             #self.addObserver(self._parameterNode, vtk.vtkCommand.ModifiedEvent, self._checkCanApply)
+    
+    def handleFirstInputs(self): # Initialize when loading the module with current node
+        self.onFeaturesFileChanged(self.ui.dataFrameSelector1.currentNode())
+        self.onCovariatesFileChanged(self.ui.dataFrameSelector2.currentNode())
+
+    def onRunComBatButtonClicked(self):
+        self.ui.statusLineEdit.setText('ComBat harmonization started.') # Initialize in-widget status line
+        if self.ui.harmonizedDfNameLineEdit.displayText != '': # Check if custom name
+            harmonizedDfName = self.ui.harmonizedDfNameLineEdit.displayText
+        else: # Set default names
+            fileNumber = self.logic.getNumberFromEnd(str(self._parameterNode.covariatesDataFrame.GetName()))
+            if fileNumber < 10:
+                harmonizedDfName = f'harmonizedDataFrame_0{fileNumber}'
+            else:
+                harmonizedDfName = f'harmonizedDataFrame_{fileNumber}'
+        if self.ui.saveDataFrameCheckBox.isChecked(): # Check if saving is enabled
+            if os.path.exists(self.ui.directoryPathLineEdit.displayText) and self.ui.directoryPathLineEdit.displayText != '':
+                savePath = self.ui.directoryPathLineEdit.displayText
+            else: 
+                savePath = ''
+        else:
+            savePath = ''
+        
+        return_str = self.logic.process(featuresDataFrame = self._parameterNode.featuresDataFrame, 
+                           covariatesDataFrame = self._parameterNode.covariatesDataFrame, 
+                           batch_col = self.batchColumn, 
+                           ref_batch = self.referenceBatch,
+                           categorical_cols = self.categorical_cols,
+                           continuous_cols = self.continuous_cols, 
+                           eb = self.ui.ebComboBox.currentText, 
+                           parametric = self.ui.parametricComboBox.currentText,
+                           mean_only = self.ui.mean_onlyComboBox.currentText, 
+                           dfName = harmonizedDfName,
+                           savePath = savePath) # Process inputs and run ComBat algorithm
+        
+        self.ui.statusLineEdit.setText(return_str)
 
 #
 # ComBatHarmonizationLogic
 #
-
 
 class ComBatHarmonizationLogic(ScriptedLoadableModuleLogic):
     """This class should implement all the actual
@@ -446,48 +453,25 @@ class ComBatHarmonizationLogic(ScriptedLoadableModuleLogic):
         ScriptedLoadableModuleLogic.__init__(self)
         
         self.resetCovars()
-        self.resetFiles()
+        self.resetVars()
 
     def getParameterNode(self):
         return ComBatHarmonizationParameterNode(super().getParameterNode())
     
-    def splitFile(self, fileName):
-        import pandas as pd
-
-        directory = os.path.dirname(fileName)
-        title_with_extension = os.path.basename(fileName)  # Removes the directory path, leaving filename
-        title, _ = os.path.splitext(title_with_extension)  # Removes the file extension
-        if not os.path.isdir(f'{directory}/Split Files'):
-            os.mkdir(f'{directory}/Split Files')
-
-        df = pd.read_csv(fileName)
-        for i in range(len(df.iloc[0,:])):
-            if i + 1 < 10:
-                df.iloc[:, i].to_csv(f'{directory}/Split Files/{title}_0{i+1}.csv', index=False)
-            else: 
-                df.iloc[:, i].to_csv(f'{directory}/Split Files/{title}_{i+1}.csv', index=False)
-    
     def resetCovars(self): 
         self.covariateNames = []
         self.covariateValues = []
-    
-    def resetFiles(self):
-        self.filesList = []
         self.covariatesList = []
     
-    def addCovariate(self, name, values): 
-        self.resetFiles()
-        self.covariateNames.append(name)
-        self.covariateValues.append(values)
+    def resetVars(self):
+        self.numFiles = 0
+        self.filesTest = 1
+        self.sizesTest = 1
+        self.filesPerCovTest = 0
+        self.colsTest = 1
 
     def checkCovariatesNum(self): 
         return len(self.covariateNames)
-    
-    def removeCovariate(self): 
-        self.resetFiles()
-        if self.checkCovariatesNum() > 0:
-            del self.covariateNames[-1]
-            del self.covariateValues[-1]
 
     def getCovariateNames(self): 
         return self.covariateNames
@@ -495,139 +479,107 @@ class ComBatHarmonizationLogic(ScriptedLoadableModuleLogic):
     def getCovariateValues(self):
         return self.covariateValues
     
-    def addFilesWithCovariates(self, fileNames, covariates):
-        self.sum = len(fileNames)
-        for i in fileNames:
-            self.filesList.append(i)
-            self.covariatesList.append(covariates.split(', '))
-
-    def removeFilesWithCovariates(self):
-        if len(self.filesList) >= self.sum:
-            del self.filesList[-self.sum:]
-            del self.covariatesList[-self.sum:]
-
-    def getFileNames(self):
-        return self.filesList
-    
     def getCovariatesList(self):
         return self.covariatesList
     
-    def checkCreatedDataFrames(self):
-        # check enough files exist per covariate combination
-        duplicates, indices = self.find_duplicates(self.covariatesList)
+    def newCovariatesDf(self, covariatesTableNode):
+        # Convert vtkMRMLTableNode to dataframe
+        covars_df = slicer.util.dataframeFromTable(covariatesTableNode)
+        self.covariateNames = covars_df.columns # get covariates names
+        for col in self.covariateNames: # get covariate values
+            self.covariateValues.append(covars_df[col].unique()) 
+        self.covariatesList = []
+        for i in range(len(covars_df.iloc[:, 0])): # get covariates list
+            tmp = []
+            for j in range(len(covars_df.iloc[0, :])):
+                tmp.append(covars_df.iloc[i, j])
+            self.covariatesList.append(tmp)
+        return self.checkCreatedDataFrames() # Check if dataframes are ready for ComBat
+
+    
+    def newFilesDf(self, featuresTableNode):
+        self.filesTest = 1
+        features_df = slicer.util.dataframeFromTable(featuresTableNode)
+        self.numFiles = len(features_df.columns)
+        refLen = len(features_df[features_df.columns[0]])
+        # Check if features have same len, not a new function to avoid loading the df twice
+        for col in features_df.columns:
+            if len(features_df[col]) != refLen:
+                print('Error : All features in the DataFrame must have the same dimensions.')
+                self.filesTest = 0
+                break
+        return self.checkCreatedDataFrames() # Check if dataframes are ready for ComBat  
+    
+    def compareCovarsWithFiles(self): # Check if covariates match features
+        self.sizesTest = 1
+        if self.numFiles != len(self.covariatesList):
+            self.sizesTest = 0
+    
+    def checkCovarsPerFile(self): 
+        # Check enough files exist per covariate combination
+        self.filesPerCovTest = 0
+        duplicates = self.find_duplicates(self.covariatesList)
         if len(duplicates) < (len(self.covariatesList))/2:
             print(f"Insufficient data provided!\n\n Please ensure that there are at least 2 files for each combination of covariates.")
-            tests_passed = 0
         else: 
-            tests_passed = 1
+            self.filesPerCovTest = 1
         
-        # check if all covariate combinations are provided
-        unused = []
-        for i in range(len(self.covariateNames)): 
-            for j in self.covariateValues[i]:
-                flag = 0
-                for k in range(len(self.covariatesList)):
-                    if j in self.covariatesList[k]:
-                        flag = 1
-                if flag  == 0: 
-                    unused.append(j)
-        if len(unused) > 0: 
-            print(f"Warning!\n\n Covariate values {unused} are not used. You can still run the application but the effect of those covariates will be ignored!")
-        # Passing this test is not needed here since it is just a warning
-            
-        if tests_passed: return True
-        else: return False
-    
-    def find_duplicates(self, list): # returns the indices of the duplicate files
+    def find_duplicates(self, list): 
+        # returns the indices of the duplicate files
         seen = []
         duplicates = []
-        indices = []
-        for index, i in enumerate(list):
+        for i in list:
             if i in seen:
                 duplicates.append(i)
-                indices.append(index)
             else:
                 seen.append(i)
-        return duplicates, indices
+        return duplicates
+    
+    def checkCategoricalAndContinuousCols(self, categorical, continuous, remaining): # Not called here
+        self.colsTest = 1
+        if categorical == ['None'] and continuous == ['None']:
+            if len(remaining) != 0: # check if correctly set to None
+                self.colsTest = 0
+        elif categorical == ['None'] and continuous != ['None']:
+            if continuous != remaining: # check if correct columns are put
+                self.colsTest = 0
+        elif categorical != ['None'] and continuous == ['None']:
+            if categorical != remaining: # check if correct columns are put
+                self.colsTest = 0
+        else: # Both values not None
+            if len(remaining) != len(categorical) + len(continuous): # check if number of columns is correct
+                self.colsTest = 0
+            for col in continuous:
+                if col not in remaining: # check if valid columns are included
+                    self.colsTest = 0
+            for col in categorical:
+                if col not in remaining: # check if valid columns are included
+                    self.colsTest = 0
+            duplicates = self.find_duplicates(categorical) # check for duplicates
+            if len(duplicates) > 0:
+                self.colsTest = 0
+            duplicates = self.find_duplicates(continuous)
+            if len(duplicates) > 0:
+                self.colsTest = 0
+        return self.checkCreatedDataFrames() # Check again
+
+    def checkCreatedDataFrames(self):
+        # Check everything
+        self.compareCovarsWithFiles()
+        self.checkCovarsPerFile()
+        if self.filesTest and self.sizesTest and self.filesPerCovTest and self.colsTest:
+            print('All tests successfully passed, data is ready for harmonization.')
+            return True
+        else: 
+            return False
     
     def getNumOfTableNodes(self):
         return slicer.mrmlScene.GetNodesByClass('vtkMRMLTableNode').GetNumberOfItems()
-    
-    def saveCovariatesDataFrame(self):
-        import pandas as pd
-        import numpy as np
-        # Prepare covars array in correct format 
-        all_covars = [] # numpy array so that it can be transposed
-        for i in self.covariatesList: 
-            all_covars.append(i)
-        all_covars = np.transpose(np.array(all_covars))
 
-        # Create dict and df
-        covars_dict = {}
-        for i, name in enumerate(self.covariateNames):
-            covars_dict[name] = all_covars[i]
-        covar_df = pd.DataFrame(covars_dict)
-
-        # Compute some info
-        files_num = covar_df.shape[0]
-        summary_str = [f'Summary info :\n----------------------\nTotal number of files present : {files_num} \n\nTotal number of files present in each covariate value :\n\n']
-        for i in covar_df.columns:
-            value_counts = covar_df.groupby(i).size().reset_index(name='Count')
-            summary_str.append(f'{value_counts}\n\n')
-        summary_str = "".join(summary_str)
-
-        self.NumOfNodes = self.getNumOfTableNodes()
-        self.addDataFrameToNode(covar_df, 'covariatesDataFrame', True)
-    
-        return summary_str
-    
-    def saveCorticalThicknessDataFrame(self):
-        import pandas as pd
-        import numpy as np
-        
-        data_dict = {}
-        for i, name in enumerate(self.filesList): 
-            df = pd.read_csv(name)
-            featuresArray = np.array(df.iloc[:, 0])
-            data_dict[f'Column {i}'] = featuresArray
-        try:     
-            data_df = pd.DataFrame(data_dict)
-        except ValueError:
-            data_df = pd.DataFrame({})
-        
-        if len(data_df) == 0:
-            print('Data DataFrame creation failed. Ensure all files have same dimensions.')
-        else: 
-            self.addDataFrameToNode(data_df, 'corticalThicknessDataFrame', True)
-
-    def saveStructuralMRIDataFrame(self):
-        import pandas as pd
-        
-        data_dict = {}
-        for i, name in enumerate(self.filesList): 
-            # First, load the volume into Slicer
-            volumeNode = slicer.util.loadVolume(name)
-            # Then, get the numpy array from the volume node
-            voxelArray = slicer.util.arrayFromVolume(volumeNode)
-            voxelArray = voxelArray.reshape(voxelArray.shape[0] * voxelArray.shape[1] * voxelArray.shape[2]) # convert to 1d
-            data_dict[f'Column {i}'] = voxelArray
-        try:     
-            data_df = pd.DataFrame(data_dict)
-        except ValueError:
-            data_df = pd.DataFrame({})
-        
-        if len(data_df) == 0:
-            print('Data DataFrame creation failed. Ensure all files have same dimensions.')
-        else: 
-            self.addDataFrameToNode(data_df, 'structuralMRIDataFrame', True)
-
-    def addDataFrameToNode(self, df, name, addNum):
+    def addDataFrameToNode(self, df, dfName):
         # Create a new table node in Slicer or get an existing one
         tableNode = slicer.mrmlScene.AddNewNodeByClass("vtkMRMLTableNode")
-        if addNum:
-            tableNode.SetName(f'{name}_{self.NumOfNodes}')
-        else:
-            tableNode.SetName(f'{name}')
+        tableNode.SetName(f'{dfName}')
 
         # Add columns to the table node for each DataFrame column
         for col in df.columns:
@@ -643,13 +595,24 @@ class ComBatHarmonizationLogic(ScriptedLoadableModuleLogic):
         for rowIndex in range(len(df)):
             for colIndex, colName in enumerate(df.columns):
                 tableNode.SetCellText(rowIndex, colIndex, str(df.iloc[rowIndex, colIndex]))
-        
-        return tableNode
+
+    def saveLocally(self, df, dfName, savePath):
+        if savePath != '':
+            df.to_csv(f'{savePath}/{dfName}.csv', index=False)
 
     def getNumberFromEnd(self, string):
         import re
         match = re.search(r'\d+$', string)
         return int(match.group()) if match else None
+    
+    def numpy2Df(self, arr):
+        import pandas as pd
+
+        arr_dict = {}
+        for index, col in enumerate(arr.transpose()):
+            arr_dict[f'Column{index+1   }'] = col
+        df = pd.DataFrame(arr_dict)
+        return df
     
     def runNeuroCombat(self, data_df, covars_df, batch_col, categorical_cols, continuous_cols, eb, parametric, mean_only, ref_batch):
         from neuroCombat import neuroCombat
@@ -757,73 +720,72 @@ class ComBatHarmonizationLogic(ScriptedLoadableModuleLogic):
         return
                 
             
-
     def process(self,
-                covariatesDataFrame: vtkMRMLTableNode,
                 featuresDataFrame: vtkMRMLTableNode,
-                refBatch: str,
-                number: int) -> None:
+                covariatesDataFrame: vtkMRMLTableNode,
+                batch_col: str,
+                ref_batch: str,
+                categorical_cols = list,
+                continuous_cols = list,
+                eb = str,
+                parametric = str,
+                mean_only = str,
+                dfName = str,
+                savePath = str):
         """
         Run the processing algorithm.
         Can be used without GUI widget.
-        :param inputVolume: volume to be thresholded
-        :param outputVolume: thresholding result
-        :param imageThreshold: values above/below this threshold will be set to 0
-        :param invert: if True then values above the threshold will be set to 0, otherwise values below are set to 0
-        :param showResult: show output volume in slice viewers
+        TODO: Enter description of parameters
         """
 
         if not covariatesDataFrame or not featuresDataFrame:
             raise ValueError("Input data or covariates are invalid")
 
         import time
-
+        print(categorical_cols, continuous_cols)
         startTime = time.time()
         logging.info("Processing started")
 
         # Prepare input data
         data_df = slicer.util.dataframeFromTable(featuresDataFrame)
         covars_df = slicer.util.dataframeFromTable(covariatesDataFrame)
-        batch_col = covars_df.columns[0]
-        if len(covars_df.columns) > 1:
-            categorical_cols = []
-            for index, col in enumerate(covars_df.columns): 
-                if index != 0:
-                    categorical_cols.append(col)
-        else:
+        if ref_batch == 'None (default)':
+            ref_batch = None
+        if categorical_cols == ['None']:
             categorical_cols = None
-        ref_batch = refBatch
+        if continuous_cols == ['None']:
+            continuous_cols = None
+        if eb == 'True (default)':
+            eb = True
+        if parametric == 'True (default)':
+            parametric = True
+        if mean_only == 'False (default)':
+            mean_only = False
         
-        # Set default values
-        continuous_cols = None
-        eb = True
-        parametric = True
-        mean_only = False
+        print(categorical_cols, continuous_cols)
 
-        data_combat = self.runNeuroCombat(data_df, covars_df, batch_col, categorical_cols, continuous_cols, eb, parametric, mean_only, ref_batch)
-
-        data_combat = self.numpy2Df(data_combat)
-        
+        # Run ComBat Harmonizartion using neuroComBat. 
+        """
+        Original repository from Jfortin1 in Github: 
+        https://github.com/Jfortin1/neuroCombat/blob/ac82a067412078680973ddf72bd634d51deae735/neuroCombat/neuroCombat.py
+        """
+        data_combat = self.runNeuroCombat(data_df=data_df, covars_df=covars_df, batch_col=batch_col, 
+                                          categorical_cols=categorical_cols, continuous_cols=continuous_cols, 
+                                          eb=eb, parametric=parametric, mean_only=mean_only, ref_batch=ref_batch)
         stopTime = time.time()
-
+        
         if len(data_combat) == 0:
             return_str = f'ComBat harmonization failed. See log for error messages.'
         else:
             return_str = f'ComBat harmonization completed in {stopTime-startTime:.2f} seconds.'
-            tableNode = self.addDataFrameToNode(data_combat, f'harmonizedDataFrame_{number}', False)
-
+            data_combat = self.numpy2Df(data_combat) # Convert to Pandas DataFrame
+            self.addDataFrameToNode(data_combat, dfName) # Add DataFrame to vtkMRMLTableNode
+            self.saveLocally(data_combat, dfName, savePath) # Save DataFrame locally if selected
+       
         logging.info(f"Processing completed in {stopTime-startTime:.2f} seconds")
 
-        return tableNode, return_str
+        return return_str
     
-    def numpy2Df(self, arr):
-        import pandas as pd
-
-        arr_dict = {}
-        for index, col in enumerate(arr.transpose()):
-            arr_dict[f'Column{index+1   }'] = col
-        df = pd.DataFrame(arr_dict)
-        return df
 
 
 

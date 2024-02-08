@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>S</class>
- <widget class="qMRMLWidget" name="S">
+ <class>ComBatHarmonization</class>
+ <widget class="qMRMLWidget" name="ComBatHarmonization">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>665</width>
-    <height>802</height>
+    <width>407</width>
+    <height>687</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -18,57 +18,20 @@
      </property>
      <layout class="QFormLayout" name="formLayout_2">
       <item row="0" column="0">
-       <widget class="QLabel" name="label_1">
+       <widget class="QLabel" name="label">
         <property name="text">
-         <string>ComBat Harmonization Task :</string>
+         <string>Add File :</string>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QComboBox" name="comBatSelector">
-        <property name="currentText">
-         <string>Cortical thickness measurements</string>
-        </property>
-        <property name="currentIndex">
-         <number>0</number>
-        </property>
-        <property name="placeholderText">
-         <string>Choose Task</string>
-        </property>
-        <item>
-         <property name="text">
-          <string>Cortical thickness measurements</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Structural MRI data (not recommended)</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Diffusion tensor imaging</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Functional connectivity</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout_4"/>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Add New DataFrame : </string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
        <widget class="ctkPathLineEdit" name="addDataFramePathLineEdit">
+        <property name="toolTip">
+         <string>Input filepath of .csv file to be loaded in Slicer.</string>
+        </property>
+        <property name="statusTip">
+         <string>Input filepath of .csv file to be loaded in Slicer.</string>
+        </property>
         <property name="nameFilters">
          <stringlist>
           <string>*.csv</string>
@@ -76,202 +39,66 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout_8"/>
+      <item row="1" column="1">
+       <widget class="QPushButton" name="addDataFrameButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>Click to add the file.</string>
+        </property>
+        <property name="statusTip">
+         <string>Click to add the file.</string>
+        </property>
+        <property name="text">
+         <string>Add</string>
+        </property>
+       </widget>
       </item>
-      <item row="8" column="0">
-       <widget class="QLabel" name="label_7">
+      <item row="2" column="1">
+       <layout class="QHBoxLayout" name="horizontalLayoutAddSplit"/>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_3">
         <property name="text">
          <string>Create New DataFrame :</string>
         </property>
        </widget>
       </item>
-      <item row="8" column="1">
+      <item row="3" column="1">
        <widget class="QCheckBox" name="createNewDataFrameButton">
-        <property name="text">
-         <string/>
+        <property name="toolTip">
+         <string>Click to create new covariates and data dataframes.</string>
         </property>
-       </widget>
-      </item>
-      <item row="9" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout_5"/>
-      </item>
-      <item row="11" column="0">
-       <widget class="QLineEdit" name="covariatesNames">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="inputMask">
-         <string/>
+        <property name="statusTip">
+         <string>Click to create new covariates and data dataframes.</string>
         </property>
         <property name="text">
          <string/>
         </property>
-        <property name="placeholderText">
-         <string>Type covariate</string>
-        </property>
        </widget>
       </item>
-      <item row="11" column="1">
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <item>
-         <widget class="QPushButton" name="addCovariateButton">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>125</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>80</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Add Covariate</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="removeCovariateButton">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>125</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Remove Covariate</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="saveCovariatesButton">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Save Covariates</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="12" column="0">
-       <widget class="QLineEdit" name="covariatesValues">
+      <item row="4" column="0">
+       <widget class="QCommandLinkButton" name="goToDfModuleLinkButton">
         <property name="enabled">
          <bool>false</bool>
         </property>
-        <property name="placeholderText">
-         <string>Enter values</string>
+        <property name="text">
+         <string>DataFrame Creation Module</string>
         </property>
        </widget>
       </item>
-      <item row="12" column="1">
-       <widget class="QTextEdit" name="textEdit">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>60</height>
-         </size>
-        </property>
-        <property name="readOnly">
+      <item row="5" column="0">
+       <widget class="QLabel" name="inputsTypeLabel">
+        <property name="enabled">
          <bool>true</bool>
         </property>
-       </widget>
-      </item>
-      <item row="16" column="0">
-       <widget class="Line" name="line">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="16" column="1">
-       <layout class="QHBoxLayout" name="horizontalLayout_6">
-        <item>
-         <widget class="QLabel" name="addFileGroupLabel">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Add Files :</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QComboBox" name="covariatesSelector">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="addFileGroupButton">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Add Files</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="removeFileGroupButton">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Remove Files</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="23" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout_7"/>
-      </item>
-      <item row="24" column="1">
-       <widget class="QPushButton" name="saveDataFrameButton">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
         <property name="text">
-         <string>Save Dataframes</string>
+         <string>Features DataFrame :</string>
         </property>
        </widget>
       </item>
-      <item row="25" column="0">
-       <widget class="Line" name="line_2">
-        <property name="frameShadow">
-         <enum>QFrame::Sunken</enum>
-        </property>
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="26" column="0">
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>Features File :</string>
-        </property>
-       </widget>
-      </item>
-      <item row="26" column="1">
+      <item row="5" column="1">
        <widget class="qMRMLNodeComboBox" name="dataFrameSelector1">
         <property name="enabled">
          <bool>true</bool>
@@ -281,43 +108,28 @@
           <string>vtkMRMLTableNode</string>
          </stringlist>
         </property>
-        <property name="showHidden">
-         <bool>false</bool>
-        </property>
-        <property name="showChildNodeTypes">
-         <bool>false</bool>
-        </property>
         <property name="hideChildNodeTypes">
          <stringlist notr="true"/>
         </property>
         <property name="noneEnabled">
          <bool>false</bool>
         </property>
-        <property name="addEnabled">
-         <bool>false</bool>
-        </property>
-        <property name="removeEnabled">
-         <bool>false</bool>
-        </property>
-        <property name="editEnabled">
-         <bool>false</bool>
-        </property>
-        <property name="renameEnabled">
-         <bool>false</bool>
-        </property>
         <property name="interactionNodeSingletonTag">
          <string notr="true"/>
         </property>
-       </widget>
-      </item>
-      <item row="27" column="0">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Covariates File :</string>
+        <property name="selectNodeUponCreation">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
-      <item row="27" column="1">
+      <item row="6" column="0">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>Covariates DataFrame :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
        <widget class="qMRMLNodeComboBox" name="dataFrameSelector2">
         <property name="enabled">
          <bool>true</bool>
@@ -327,30 +139,43 @@
           <string>vtkMRMLTableNode</string>
          </stringlist>
         </property>
-        <property name="showHidden">
-         <bool>false</bool>
-        </property>
-        <property name="showChildNodeTypes">
-         <bool>false</bool>
-        </property>
         <property name="hideChildNodeTypes">
          <stringlist notr="true"/>
-        </property>
-        <property name="noneEnabled">
-         <bool>false</bool>
-        </property>
-        <property name="addEnabled">
-         <bool>false</bool>
-        </property>
-        <property name="removeEnabled">
-         <bool>false</bool>
         </property>
         <property name="interactionNodeSingletonTag">
          <string notr="true"/>
         </property>
+        <property name="selectNodeUponCreation">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
-      <item row="28" column="0">
+      <item row="7" column="0">
+       <widget class="QLabel" name="batchColumnLabel">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Batch Column :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="1">
+       <widget class="QComboBox" name="batchColumnComboBox">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="placeholderText">
+         <string/>
+        </property>
+        <item>
+         <property name="text">
+          <string>None</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="8" column="0">
        <widget class="QLabel" name="referenceBatchLabel">
         <property name="enabled">
          <bool>false</bool>
@@ -360,7 +185,7 @@
         </property>
        </widget>
       </item>
-      <item row="28" column="1">
+      <item row="8" column="1">
        <widget class="QComboBox" name="referenceBatchComboBox">
         <property name="enabled">
          <bool>false</bool>
@@ -372,16 +197,6 @@
         </item>
        </widget>
       </item>
-      <item row="29" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout_3"/>
-      </item>
-      <item row="3" column="0">
-       <widget class="QCheckBox" name="splitFileCheckBox">
-        <property name="text">
-         <string>Split File</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>
@@ -390,60 +205,132 @@
      <property name="text">
       <string>Outputs</string>
      </property>
-     <layout class="QFormLayout" name="formLayout">
+     <layout class="QFormLayout" name="formLayout_4">
       <item row="0" column="0">
-       <widget class="QLabel" name="label_5">
+       <widget class="QLabel" name="label_8">
         <property name="text">
-         <string>Run ComBat Harmonization :</string>
+         <string>Custom Name :</string>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QPushButton" name="runComBatButton">
-        <property name="maximumSize">
-         <size>
-          <width>440</width>
-          <height>16777215</height>
-         </size>
+       <widget class="QCheckBox" name="customNamesCheckBox">
+        <property name="toolTip">
+         <string>Click if you would like to enter custom names for the created DataFrames.</string>
+        </property>
+        <property name="statusTip">
+         <string>Click if you would like to enter custom names for the created DataFrames.</string>
         </property>
         <property name="text">
-         <string>Run</string>
+         <string/>
         </property>
        </widget>
       </item>
       <item row="1" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout"/>
-      </item>
-      <item row="2" column="0" colspan="2">
-       <widget class="QLineEdit" name="statusLineEdit">
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="label_4">
-        <property name="text">
-         <string>Harmonization Results : </string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QPushButton" name="showResultsButton">
+       <widget class="QLabel" name="harmonizedDataFrameLabel">
         <property name="enabled">
          <bool>false</bool>
         </property>
         <property name="text">
-         <string>Show Results</string>
+         <string>Harmonized DataFrame :</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="1">
-       <widget class="QPushButton" name="saveResultsButton">
-        <property name="text">
-         <string>Save Results</string>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="harmonizedDfNameLineEdit">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>Enter name for the covariates DataFrame.</string>
+        </property>
+        <property name="statusTip">
+         <string>Enter name for the covariates DataFrame.</string>
+        </property>
+        <property name="placeholderText">
+         <string>Enter name</string>
         </property>
        </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="Line" name="line_5">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Save Output :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QCheckBox" name="saveDataFrameCheckBox">
+        <property name="toolTip">
+         <string>Click if you desire to locally store the created dataframes.</string>
+        </property>
+        <property name="statusTip">
+         <string>Click if you desire to locally store the created dataframes.</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="Line" name="line_4">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="savePathLabel">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Save Path :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QLineEdit" name="directoryPathLineEdit">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="toolTip">
+           <string>Enter manually or by using the &quot;Browse&quot; button the desired directory to save the files.</string>
+          </property>
+          <property name="statusTip">
+           <string>Enter manually or by using the &quot;Browse&quot; button the desired directory to save the files.</string>
+          </property>
+          <property name="placeholderText">
+           <string>Enter directory path</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="browseFoldersButton">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="toolTip">
+           <string>Click to browse and select the desired directory.</string>
+          </property>
+          <property name="statusTip">
+           <string>Click to browse and select the desired directory.</string>
+          </property>
+          <property name="text">
+           <string>Browse</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>
@@ -453,28 +340,128 @@
      <property name="text">
       <string>Advanced</string>
      </property>
-     <property name="collapsed">
+     <property name="checked">
       <bool>true</bool>
      </property>
-     <widget class="QCheckBox" name="invertOutputCheckBox">
-      <property name="geometry">
-       <rect>
-        <x>7</x>
-        <y>28</y>
-        <width>492</width>
-        <height>16</height>
-       </rect>
-      </property>
-      <property name="toolTip">
-       <string>If checked, values above threshold are set to 0. If unchecked, values below are set to 0.</string>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-      <property name="invertThreshold" stdset="0">
-       <string/>
-      </property>
-     </widget>
+     <property name="collapsed">
+      <bool>false</bool>
+     </property>
+     <layout class="QFormLayout" name="formLayout_3">
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_10">
+        <property name="text">
+         <string>Empirical Bayes :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_11">
+        <property name="text">
+         <string>Parametric :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="label_12">
+        <property name="text">
+         <string>Mean Adjustment Only :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QComboBox" name="ebComboBox">
+        <item>
+         <property name="text">
+          <string>True (default)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>False</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QComboBox" name="parametricComboBox">
+        <item>
+         <property name="text">
+          <string>True (default)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>False</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QComboBox" name="mean_onlyComboBox">
+        <property name="currentIndex">
+         <number>1</number>
+        </property>
+        <item>
+         <property name="text">
+          <string>True</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>False (default)</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="categoricalColumnsLabel">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Categorical Columns :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="continuousColumnsLabel">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Continuous Columns :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="categoricalColumnsLineEdit">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="continuousColumnsLineEdit">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="editColumns">
+        <property name="text">
+         <string>Assign Columns :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QCheckBox" name="assignColumnsCheckBox">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>
@@ -483,10 +470,32 @@
       <bool>false</bool>
      </property>
      <property name="toolTip">
-      <string>Run the algorithm.</string>
+      <string>Click to apply all inputs and create the DataFrames. If selected, DataFrames will be automatically saved on path input.</string>
+     </property>
+     <property name="statusTip">
+      <string>Click to apply all inputs and create the DataFrames. If selected, DataFrames will be automatically saved on path input.</string>
      </property>
      <property name="text">
-      <string>Apply</string>
+      <string>Run ComBat</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2"/>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="statusLineEdit"/>
+   </item>
+   <item>
+    <widget class="QCommandLinkButton" name="goToPlotResultsButton">
+     <property name="toolTip">
+      <string>Click to go to the ComBatHarmonization module</string>
+     </property>
+     <property name="statusTip">
+      <string>Click to go to the ComBatHarmonization module</string>
+     </property>
+     <property name="text">
+      <string>Quantify Results Module</string>
      </property>
     </widget>
    </item>
@@ -532,34 +541,34 @@
  <resources/>
  <connections>
   <connection>
-   <sender>S</sender>
+   <sender>ComBatHarmonization</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
    <receiver>dataFrameSelector1</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>285</x>
-     <y>293</y>
+     <x>203</x>
+     <y>320</y>
     </hint>
     <hint type="destinationlabel">
-     <x>376</x>
-     <y>278</y>
+     <x>305</x>
+     <y>162</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>S</sender>
+   <sender>ComBatHarmonization</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
    <receiver>dataFrameSelector2</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>285</x>
-     <y>293</y>
+     <x>203</x>
+     <y>320</y>
     </hint>
     <hint type="destinationlabel">
-     <x>376</x>
-     <y>305</y>
+     <x>305</x>
+     <y>189</y>
     </hint>
    </hints>
   </connection>

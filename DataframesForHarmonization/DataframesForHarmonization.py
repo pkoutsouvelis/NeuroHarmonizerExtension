@@ -150,7 +150,7 @@ class DataframesForHarmonizationWidget(ScriptedLoadableModuleWidget, VTKObservat
         self.ui.removeFileGroupButton.clicked.connect(self.onRemoveFileGroupButtonClicked) # Remove last added file group from files list
         self.ui.customNamesCheckBox.toggled.connect(self.onCustomNamesCheckBoxToggled) # Enable input of custom DataFrames names
         self.ui.saveDataFramesCheckBox.toggled.connect(self.onSaveDataFramesCheckBoxToggled) # Enable saving of DataFrames in a local path 
-        self.ui.browseFoldersButton.clicked.connect(self.onBrowseFoldersButtonClicked)
+        self.ui.browseFoldersButton.clicked.connect(self.onBrowseFoldersButtonClicked) # Open file dialog to choose directory and get the path
         self.ui.applyButton.clicked.connect(self.onApplyButton)
         self.ui.goToComBatLinkButton.clicked.connect(self.onGoToComBatLinkButtonClicked)
     
@@ -268,7 +268,14 @@ class DataframesForHarmonizationWidget(ScriptedLoadableModuleWidget, VTKObservat
             # Compute all combinations
             combinations = list(itertools.product(*self.logic.getCovariateValues()))
             for combination in combinations: 
-                self.ui.covariatesSelector.addItem(str(combination))
+                row = []
+                for val in combination: # Remove parenthesis
+                    if val != combination[-1]:
+                        row.append(f'{val}, ')
+                    else: 
+                        row.append(f'{val}')
+                row = "".join(row)
+                self.ui.covariatesSelector.addItem(row)
         # Enable addition of files
         self.ui.assignFilesLabel.enabled = True
         self.ui.addFileGroupButton.enabled = True
@@ -557,12 +564,12 @@ class DataframesForHarmonizationLogic(ScriptedLoadableModuleLogic):
             data_df = pd.DataFrame({})
         
         if len(data_df) == 0:
-            print('Data DataFrame creation failed. Ensure all files have same dimensions.')
-            summary_str = 'Data DataFrame creation failed. Ensure all files have same dimensions.'
+            print('Features DataFrame creation failed. Ensure all files have same dimensions.')
+            summary_str = 'Features DataFrame creation failed. Ensure all files have same dimensions.'
         else: 
             self.addDataFrameToNode(data_df, dfName)
             self.saveLocally(data_df, dfName, savePath)
-            summary_str = 'Data DataFrame successfully created.'
+            summary_str = 'Features DataFrame successfully created.'
         
         return summary_str
 
@@ -583,12 +590,12 @@ class DataframesForHarmonizationLogic(ScriptedLoadableModuleLogic):
             data_df = pd.DataFrame({})
         
         if len(data_df) == 0:
-            print('Data DataFrame creation failed. Ensure all files have same dimensions.')
-            summary_str = 'Data DataFrame creation failed. Ensure all files have same dimensions.'
+            print('Features DataFrame creation failed. Ensure all files have same dimensions.')
+            summary_str = 'Features DataFrame creation failed. Ensure all files have same dimensions.'
         else: 
             self.addDataFrameToNode(data_df, dfName)
             self.saveLocally(data_df, dfName, savePath)
-            summary_str = 'Data DataFrame successfully created.'
+            summary_str = 'Features DataFrame successfully created.'
 
         return summary_str
 
